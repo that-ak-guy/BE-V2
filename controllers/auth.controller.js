@@ -1,47 +1,31 @@
 import { FindSession } from "../repositories/auth.repo.js"
-import { LoginService } from "../services/auth.service.js"
-import { GenerateToken } from "../utils/token.util.js"
+import { ApiResponse } from "../utils/ApiResponse.js"
+import { asyncHandler } from "../utils/asyncHandler.js"
 
 
-export const LoginController = async (req, res) => {
-    if (req.authstate === true) {
-        const sessionid = req.cookies.sessionid
-        const authdata = await FindSession(sessionid)
-        if (authdata.state === false) {
-            res.send({ msg: "Invalid Session" })
-        }
+export const LoginController = asyncHandler(async (req, res) => {
+    const responseData = { userData: null, authData: null }
 
-        else {
-            res.send({ msg: "User already signed in", userid: authdata.user })
-        }
+    const accesstoken = req.header('Authorization')
+    const refreshtoken = req.cookies.refreshToken
+
+    if (!accesstoken && !refreshtoken) {
 
     }
 
     else {
-        const userData = await LoginService(req)
-        if (userData.status === false) {
-            
-        }
-
-        else {
-            const sessionid = GenerateToken()
-            res.cookie("sessionid", sessionid, {
-                httpOnly: false,
-                secure: true,
-                sameSite: 'None',
-                expires: new Date(Date.now() + 36000000)
-            })
-        }
-
-        res.send(userData)
+        
     }
+})
 
+export const SignUpController = asyncHandler(async (req, res) => {
+    if (!req.tokenData) {
 
-}
-
-export const SignUpController = (req, res) => {
-
-}
+    }
+    else {
+        return res.status(409).json(new ApiResponse(409, 'SIGNUP_CONFLICT', 'User already logged in'))
+    }
+})
 
 export const LogoutContoller = (req, res) => {
 

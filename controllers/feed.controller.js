@@ -1,4 +1,3 @@
-
 export const FeedController = (req, res) => {
     console.log(req.body)
 

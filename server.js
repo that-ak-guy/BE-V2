@@ -5,6 +5,10 @@ import cookieParser from 'cookie-parser'
 import AuthRouter from './routes/auth.router.js'
 import './config/initenv.js'
 import cors from 'cors'
+import VaultRouter from './routes/vault.router.js'
+import RefreshRouter from './routes/refresh.router.js'
+import { ErrorHandler } from './middlewares/errors.middleware.js'
+import { unless } from 'express-unless'
 
 const app = express()
 const port = process.env.PORT || 9000
@@ -17,16 +21,23 @@ app.use(cors(
     }
 ))
 
+SessionVerify.unless = unless
+
 app.use(express.json())
 app.use(cookieParser())
-app.use(SessionVerify)
+app.use(SessionVerify.unless({ path: ['/api/refresh'] }))
 
 app.get('/', (req, res) => {
     res.send("This is the home")
 })
 
 app.use('/api/auth', AuthRouter)
+app.use('/api/refresh', RefreshRouter)
 app.use('/api/feed', FeedRouter)
+app.use('/api/vault', VaultRouter)
+
+app.use(ErrorHandler)
+
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`)

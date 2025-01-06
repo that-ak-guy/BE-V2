@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { FeedController } from "../controllers/feed.controller.js";
 
-const FeedRouter  = Router()
+const FeedRouter = Router()
 
 FeedRouter.post('/content', FeedController)
 FeedRouter.post('/suggest')
