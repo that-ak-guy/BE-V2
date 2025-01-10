@@ -1,5 +1,6 @@
 import { GetItemCommand } from "@aws-sdk/client-dynamodb"
 import DBClient from "../config/initDB.js"
+import { ApiError } from "../utils/ApiError.js"
 
 
 export const FindUserByUserID = async (req) => {
@@ -34,6 +35,29 @@ export const FindUserByUserID = async (req) => {
         console.log(error)
     }
 
+}
+
+export const FindUserByEmail = async (email) => {
+    const responseData = { state: null }
+
+    const query = {
+        TableName: "Auth",
+        FilterExpression: "email = :email",
+    }
+
+    const command = new GetItemCommand(query)
+    try {
+        const response = await DBClient.send(command)
+        if (!response.Item) {
+            responseData.state = false
+        }
+        else {
+            responseData.state = true
+        }
+    }
+    catch (err) {
+        throw new ApiError(500, 'INTERNAL_ERROR', 'Database command error')
+    }
 }
 
 export const FindSession = async (token) => {

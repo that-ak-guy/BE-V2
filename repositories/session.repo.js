@@ -1,10 +1,14 @@
 import { DeleteItemCommand, GetItemCommand, PutItemCommand } from "@aws-sdk/client-dynamodb";
 import DBClient from "../config/initDB.js"
+import { unmarshall } from "@aws-sdk/util-dynamodb";
+import { ApiError } from "../utils/ApiError.js";
+import { ErrorCodes, ErrorMessages } from "../config/codes.js";
 
 const Client = DBClient;
 
 export const FindSessionByToken = async (token) => {
-    const responseData = { status: null, data: null }
+    const responseData = { state: false, data: null, error: null }
+
     const query = {
         "Key": {
             "token": {
@@ -18,18 +22,16 @@ export const FindSessionByToken = async (token) => {
     try {
         const res = await Client.send(command)
         if (!res.Item) {
-            responseData.status = 404
+            responseData.error = new ApiError(401, ErrorCodes.Invalidtoken, ErrorMessages.Invalidtoken)
             return responseData
         }
-
-        responseData.status = 200
-        responseData.data = res.Item
+        responseData.state = true
+        responseData.data = unmarshall(res.Item)
         return responseData
 
     }
     catch (error) {
-        console.error("Error finding session : ", error)
-        responseData.status = 500
+        responseData.error = new ApiError(500, ErrorCodes.Internalerror, ErrorMessages.Internalerror)
         return responseData
     }
 }

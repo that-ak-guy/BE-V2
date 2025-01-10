@@ -2,6 +2,8 @@ import { VerifyToken } from "../utils/token.util.js"
 import { ApiError } from "../utils/ApiError.js"
 import { asyncHandler } from "../utils/asyncHandler.js"
 import jwt from "jsonwebtoken"
+import { VerifyAccessToken, VerifyRefreshToken } from "../services/session.service.js"
+import { ErrorCodes, ErrorMessages } from "../config/codes.js"
 
 export const SessionVerify = asyncHandler(async (req, _, next) => {
     const token = req.header("Authorization")
@@ -14,6 +16,7 @@ export const SessionVerify = asyncHandler(async (req, _, next) => {
             const decoded = VerifyToken(token)
             if (decoded.valid === true) {
                 req.tokenData = decoded.data
+
                 next()
             }
 
@@ -35,14 +38,52 @@ export const SessionVerify = asyncHandler(async (req, _, next) => {
     }
 })
 
-export const AuthSessionVerify = asyncHandler(async (req, _, next) => {
+export const AuthSessionVerifyIn = asyncHandler(async (req, res, next) => {
     const accesstoken = req.header('Authorization')
     const refreshtoken = req.cookies.refreshToken
 
     if (!accesstoken && !refreshtoken) {
-        req.tokenState = false
         next()
     }
 
-    
+    else {
+        throw new ApiError(409, 'USER_CONFLICT', 'User already logged in.')
+    }
+})
+
+export const AuthSessionVerifyOut = asyncHandler(async (req, _, next) => {
+    const accesstoken = req.header('Authorization')
+    const refreshtoken = req.cookies.refreshToken
+
+    if (accesstoken && refreshtoken) {
+        next()
+    }
+    else {
+        throw new ApiError(401, 'INVALID_SESSION', 'Tokens not found for valid session')
+    }
+})
+
+export const RefreshSessionVerify = asyncHandler(async (req, _, next) => {
+    const accesstoken = req.header('Authorization')
+    const refreshtoken = req.cookies.refreshToken
+
+    if (accesstoken) {
+        const accessdecoded = await VerifyAccessToken(accesstoken)
+        if (!accessdecoded.state) {
+            throw accessdecoded.error
+        }
+        throw new ApiError(409, ErrorCodes.Userconflict, ErrorMessages.Userconflict)
+    }
+
+    else if (!refreshtoken) {
+        throw new ApiError(401, ErrorCodes.Notoken, ErrorMessages.Notoken)
+    }
+
+    const refreshdecoded = await VerifyRefreshToken(refreshtoken)
+    if (!refreshdecoded.state) {
+        throw refreshdecoded.error
+    }
+
+    req.tokenData = refreshdecoded.data
+    next()
 })

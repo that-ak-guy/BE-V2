@@ -1,5 +1,6 @@
 import { FindSessionByToken } from "../repositories/session.repo.js"
-import { SignToken } from "../utils/token.util.js"
+import { ApiError } from "../utils/ApiError.js"
+import { SignToken, VerifyToken } from "../utils/token.util.js"
 
 export const CreateSession = async (userData) => {
     const responseData = { status: null, accessToken: null, refreshToken: null }
@@ -23,20 +24,35 @@ export const CreateAccessToken = async () => {
 }
 
 export const VerifyAccessToken = async (token) => {
-    const responseData = { status: null }
-    const findres = await FindSessionByToken(token)
+    const responseData = { state: false, data: null, error: null }
 
-    // if (findres.status === 200) {
-    //     if (findres.data.ext.S < Date.now()) {
-    //         const 
-    //     }
-    // }
-
+    const decoded = VerifyToken(token)
+    if (!decoded.valid) {
+        responseData.error = decoded.error
+        return responseData
+    }
+    responseData.state = true
+    responseData.data = decoded.data
+    return responseData
 }
 
 export const VerifyRefreshToken = async (token) => {
-    const responseData = { status: null }
+    const responseData = { state: false, data: null, error: null }
 
+    const decoded = VerifyToken(token)
+    if (!decoded.valid) {
+        responseData.error = decoded.error
+        return responseData
+    }
+
+    const dbData = await FindSessionByToken(token)
+    if (!dbData.state) {
+        responseData.error = dbData.error
+        return responseData
+    }
+
+    responseData.state = true
+    responseData.data = decoded.data
     return responseData
 }
 

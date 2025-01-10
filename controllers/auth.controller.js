@@ -1,4 +1,4 @@
-import { FindSession } from "../repositories/auth.repo.js"
+import { RegisterService } from "../services/auth.service.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import { asyncHandler } from "../utils/asyncHandler.js"
 
@@ -14,17 +14,21 @@ export const LoginController = asyncHandler(async (req, res) => {
     }
 
     else {
-        
+
     }
 })
 
 export const SignUpController = asyncHandler(async (req, res) => {
-    if (!req.tokenData) {
+    try {
+        const responseData = await RegisterService(req.body)
 
     }
-    else {
-        return res.status(409).json(new ApiResponse(409, 'SIGNUP_CONFLICT', 'User already logged in'))
+    catch (err) {
+        console.log(err)
     }
+
+    res.send('HIHINIINJVRIEV')
+
 })
 
 export const LogoutContoller = (req, res) => {

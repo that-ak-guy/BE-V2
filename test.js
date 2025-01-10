@@ -1,54 +1,11 @@
-import { DynamoDBClient, BatchWriteItemCommand } from "@aws-sdk/client-dynamodb";
-import { configDotenv } from "dotenv";
-configDotenv()
-// Create DynamoDB client
-const client = new DynamoDBClient();
+import { SignToken, VerifyToken } from "./utils/token.util.js"
 
-async function CreateTable() {
-    const tablename = "Users"
-    
+const payload = {
+    "uuid": 12345,
+    "role": "user",
 }
+const ext = '12h'
 
-async function batchInsert() {
-    const tableName = "Vault";
+const token = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoxMjM0NSwicm9sZSI6InVzZXIiLCJpYXQiOjE3MzY0OTAxNzksImV4cCI6MTczNjUzMzM3OX0.dOl8369XMucTllFP3VANVM3dkBBIfAZhdTumQffoAu-VEujwtWDpvhMTzT8cXfGsaKXCtwQHgwFpZ5yp-zMIwAz8oB7QG2tWk6vIwFczXqiALxMz_lEr4-kiqhUBQB8_MG4F78DIHNdJgQ-xlVa1fYMSEz2fuBq-G5CGCHDnXtWfhCOBzN4uky7K-4az0bjNOfYIlWs9LGL8VBWqwQS2h0bXaK66QZUTlc9cbRkYJRBf6CcxObSI2oExh13Vm-ixwROQPOJ7GhIiraZ82WDOjjaBBL1gBWJ1pwZfB8e-fnmtJ8uiHQHyHFLfma9Xnck9EoV8quGpJtwTlaMPeybe5JXqenJ8uPfOg02uK0JEx5Mf7anlIzwf0rWJ9HkNR6OpGAJxuyxJN24a0SWyRwYbQOwRd04wZHCWBo13Uyi2xYtYa6CA9-wU3hyU9CUh-PL5NOXHbh1MhauVtJXYQS_YMcXid6-iXC1bf5AONrf2F0io7huqyVDcyKUEjobpNiDU'
 
-    // Generate 20 dummy items
-    const dummyItems = Array.from({ length: 20 }, (_, i) => ({
-        PutRequest: {
-            Item: {
-                userid: { S: `user${i + 1}` }, // Partition Key
-                website: { S: `website${i + 1}.com` }, // Sort Key
-                category: { S: `category${(i % 3) + 1}` },
-                createdAt: { S: new Date().toISOString() },
-                email: { S: `user${i + 1}@example.com` },
-                lastAt: { S: new Date().toISOString() },
-                phone: { S: `123-456-78${i + 10}` },
-                username: { S: `username${i + 1}` },
-            },
-        },
-    }));
-
-    // DynamoDB BatchWrite allows up to 25 items per batch
-    const chunks = [];
-    while (dummyItems.length) {
-        chunks.push(dummyItems.splice(0, 25)); // Split into chunks of 25 items
-    }
-
-    try {
-        for (const chunk of chunks) {
-            const params = {
-                RequestItems: {
-                    [tableName]: chunk,
-                },
-            };
-            const command = new BatchWriteItemCommand(params);
-            const response = await client.send(command);
-            console.log("BatchWrite Response:", response);
-        }
-        console.log("Batch Insert Completed!");
-    } catch (error) {
-        console.error("Error inserting items:", error);
-    }
-}
-
-batchInsert();
+console.log(VerifyToken(token))
