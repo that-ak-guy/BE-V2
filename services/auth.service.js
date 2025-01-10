@@ -1,22 +1,38 @@
 import { PutItemCommand } from "@aws-sdk/client-dynamodb"
-import { FindUserByEmail, FindUserByUserID } from "../repositories/auth.repo.js"
+import { FindHashByUuid, FindUserByEmail, FindUserByUserID } from "../repositories/auth.repo.js"
+import { VerifyPassword } from "../utils/HashUtil.js"
 
-export const LoginService = async (req) => {
-    const userData = { status: false, msg: "", data: null }
-    const data = await FindUserByUserID(req.body)
-    console.log(data)
+export const LoginService = async (loginData) => {
+    const responseData = { state: false, data: null, error: null }
 
-    if (data.state === false) {
-        userData.msg = "Login Unsuccessful"
+    const { id, userid, password } = loginData
+
+    if (id === 'email') {
+        const userData = await FindUserByEmail(userid)
+        if (!userData.state) {
+            responseData.error = userData.error
+        }
+        else {
+            const uuid = userData.data.uuid
+            const authData = await FindHashByUuid(uuid)
+            if (!authData.state) {
+                responseData.error = authData.error
+            }
+            else {
+                const hash = authData.data.hash
+                const userValid = await VerifyPassword(password, hash)
+                if (!userValid.state) {
+                    responseData.error = userValid.error
+                }
+                else {
+                    responseData.state = true
+                    responseData.data = userData
+                }
+            }
+        }
     }
 
-    else {
-        userData.status = true
-        userData.msg = "Login Successful"
-        userData.data = data.data
-    }
-
-    return userData
+    return responseData
 }
 
 export const UniqueEmailService = async (email) => {
@@ -29,24 +45,9 @@ export const UniqueEmailService = async (email) => {
 }
 
 export const RegisterService = async (data) => {
-    const responseData = { status: null, data: null }
-    const { name, email, phone, password } = data
+    const responseData = { state: false, data: null, error: null }
 
-    const query = {
-        "TableName": process.env.USERS_TABLE,
-        "Item": {
-            "name": {
-                "S": name
-            },
-            "email": {
-                "S": email
-            },
-            "phone": {
-                "S": phone
-            },
-        }
-    }
 
-    const command = new PutItemCommand()
 
+    return responseData
 }

@@ -32,7 +32,6 @@ app.get('/', (req, res) => {
 })
 
 app.use('/api/auth', AuthRouter)
-app.use('/refresh', RefreshRouter)
 app.use('/api/feed', FeedRouter)
 app.use('/api/vault', SessionVerify, VaultRouter)
 app.get('/cook', (req, res) => {
@@ -41,6 +40,11 @@ app.get('/cook', (req, res) => {
     res.send('cookie set')
 })
 
+
+
+// READY FOR PRODUCTION
+
+app.use('/refresh', RefreshRouter)
 app.use(ErrorHandler)
 
 

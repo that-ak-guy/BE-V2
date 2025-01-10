@@ -1,6 +1,8 @@
 import { GetItemCommand } from "@aws-sdk/client-dynamodb"
 import DBClient from "../config/initDB.js"
 import { ApiError } from "../utils/ApiError.js"
+import { ErrorCodes, ErrorMessages } from "../config/codes.js"
+import { marshall, unmarshall } from "@aws-sdk/util-dynamodb"
 
 
 export const FindUserByUserID = async (req) => {
@@ -38,7 +40,7 @@ export const FindUserByUserID = async (req) => {
 }
 
 export const FindUserByEmail = async (email) => {
-    const responseData = { state: null }
+    const responseData = { state: false, data: null, error: null }
 
     const query = {
         TableName: "Auth",
@@ -46,45 +48,50 @@ export const FindUserByEmail = async (email) => {
     }
 
     const command = new GetItemCommand(query)
+
     try {
-        const response = await DBClient.send(command)
-        if (!response.Item) {
-            responseData.state = false
+        const result = await DBClient.send(command)
+        if (!result.Item) {
+            responseData.error = new ApiError(404, ErrorCodes.Usernotfound, ErrorCodes.Usernotfound)
         }
         else {
             responseData.state = true
-        }
-    }
-    catch (err) {
-        throw new ApiError(500, 'INTERNAL_ERROR', 'Database command error')
-    }
-}
-
-export const FindSession = async (token) => {
-    const response = { state: false, user: null }
-
-    const params = {
-        Key: {
-            "sessionid": {
-                S: token
-            }
-        },
-        TableName: "Session"
-    }
-
-    try {
-        const data = await DBClient.send(new GetItemCommand(params))
-        if (!data.Item) {
-            return response
-        }
-        else {
-            response.state = true
-            response.user = data.Item.Username.S
-            return response
+            responseData.data = unmarshall(result.Item)
         }
     }
 
     catch (error) {
-        console.log(error)
+        throw new ApiError(500, ErrorCodes.Internalerror, ErrorCodes.Internalerror)
     }
+
+    return responseData
+}
+
+export const FindHashByUuid = async (uuid) => {
+    const responseData = { state: false, data: null, error: null }
+
+    const query = marshall({
+        TableName: process.env.AUTHS_TABLE,
+        Key: {
+            uuid: uuid
+        }
+    })
+
+    const command = new GetItemCommand(query)
+
+    try {
+        const result = await DBClient.send(command)
+        if (!result.Item) {
+            responseData.error = new ApiError(404, ErrorCodes.Internalerror, ErrorMessages.Internalerror)
+        }
+        else {
+            responseData.state = true
+            responseData.data = unmarshall(result.Item)
+        }
+    }
+    catch (error) {
+        throw new ApiError(500, ErrorCodes.Internalerror, ErrorCodes.Internalerror)
+    }
+
+    return responseData
 }

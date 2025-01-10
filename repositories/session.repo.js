@@ -1,6 +1,6 @@
 import { DeleteItemCommand, GetItemCommand, PutItemCommand } from "@aws-sdk/client-dynamodb";
 import DBClient from "../config/initDB.js"
-import { unmarshall } from "@aws-sdk/util-dynamodb";
+import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import { ApiError } from "../utils/ApiError.js";
 import { ErrorCodes, ErrorMessages } from "../config/codes.js";
 
@@ -23,42 +23,42 @@ export const FindSessionByToken = async (token) => {
         const res = await Client.send(command)
         if (!res.Item) {
             responseData.error = new ApiError(401, ErrorCodes.Invalidtoken, ErrorMessages.Invalidtoken)
-            return responseData
         }
-        responseData.state = true
-        responseData.data = unmarshall(res.Item)
-        return responseData
-
+        else {
+            responseData.state = true
+            responseData.data = unmarshall(res.Item)
+        }
     }
     catch (error) {
         responseData.error = new ApiError(500, ErrorCodes.Internalerror, ErrorMessages.Internalerror)
-        return responseData
     }
+    return responseData
 }
 
 export const CreateSessionByToken = async (sessionData) => {
-    const responseData = { status: null }
+    const responseData = { state: false, data: null, error: null }
+    const { uuid, token, ext } = sessionData
 
-    const query = {
-        "Item": {
-            "token": { "S": sessionData.token },
-            "ext": { "S": sessionData.ext },
+    const query = marshall({
+        Item: {
+            uuid: uuid,
+            token: token,
+            ext: ext,
         },
-        "TableName": process.env.SESSION_TABLE
-    }
+        TableName: process.env.SESSION_TABLE
+    })
 
     const command = new PutItemCommand(query)
 
     try {
-        const res = await Client.send(command)
-        responseData.status = 200
-        return responseData
+        const result = await Client.send(command)
+        responseData.state = true
     }
     catch (error) {
-        console.error('Error : ', error)
-        responseData.status = 400
-        return responseData
+        responseData.error = new ApiError(500, ErrorCodes.Internalerror, ErrorMessages.Internalerror)
     }
+
+    return responseData
 }
 
 export const ClearSessionByToken = async (token) => {
