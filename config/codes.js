@@ -5,7 +5,7 @@ export const ErrorCodes = {
     Internalerror: 'INTERNAL_ERROR',
     Userconflict: 'USER_CONFLICT',
     Usernotfound: 'USER_NOT_FOUND',
-
+    Emailexists: 'UNIQUE_EMAIL',
     InvalidPass: 'INVALID_PASSWORD',
 }
 
@@ -16,7 +16,7 @@ export const ErrorMessages = {
     Internalerror: 'An internal error occurred.',
     Userconflict: 'Valid Session already exists.',
     Usernotfound: 'User not found.',
-
+    Emailexists: 'Email already exists.',
     InvalidPass: 'Wrong password.',
 
 }
@@ -24,9 +24,11 @@ export const ErrorMessages = {
 export const SuccessCodes = {
     TokenSigned: 'TOKEN_SIGNED',
     Loginsuccess: 'LOGIN_SUCCESS',
+    Registersuccess: 'REGISTER_SUCCESS'
 }
 
 export const SuccessMessages = {
     TokenSigned: 'Token Signed successfully.',
     Loginsuccess: 'User login successful.',
+    Registersuccess: 'User Registered successfully.'
 }

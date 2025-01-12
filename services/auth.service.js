@@ -1,9 +1,11 @@
-import { PutItemCommand } from "@aws-sdk/client-dynamodb"
-import { FindHashByUuid, FindUserByEmail, FindUserByUserID } from "../repositories/auth.repo.js"
-import { VerifyPassword } from "../utils/HashUtil.js"
+import { ErrorCodes, ErrorMessages } from "../config/codes.js"
+import { CreateUserByUserID, FindHashByUuid, FindUserByEmail, FindUserByUserID } from "../repositories/auth.repo.js"
+import { ApiError } from "../utils/ApiError.js"
+import { HashPassword, VerifyPassword } from "../utils/HashUtil.js"
+import { GenerateUUID } from "../utils/uuidUtil.js"
 
 export const LoginService = async (loginData) => {
-    const responseData = { state: false, data: null, error: null }
+    const responseData = { state: false, data: {}, error: null }
 
     const { id, userid, password } = loginData
 
@@ -35,19 +37,49 @@ export const LoginService = async (loginData) => {
     return responseData
 }
 
-export const UniqueEmailService = async (email) => {
-    try {
-        const data = await FindUserByEmail(email)
-    }
-    catch (error) {
-        console.log(error)
-    }
-}
-
-export const RegisterService = async (data) => {
+export const RegisterService = async (registerData) => {
     const responseData = { state: false, data: null, error: null }
 
+    const { email, password } = registerData
 
+    const emailcheck = await FindUserByEmail(email)
+    if (!emailcheck.state) {
+        if (emailcheck.error.code === ErrorCodes.Usernotfound) {
+
+        }
+        else {
+            responseData.error = emailcheck.error
+            return responseData
+        }
+    }
+
+    else {
+        responseData.error = new ApiError(400, ErrorCodes.Emailexists, ErrorMessages.Emailexists)
+
+        return responseData
+    }
+
+    const hash = await HashPassword(password)
+    if (!hash.state) {
+        responseData.error = hash.error
+        return responseData
+    }
+
+    const uuid = GenerateUUID()
+    if (!uuid.state) {
+        responseData.error = uuid.error
+        return responseData
+    }
+
+    const userData = { uuid: uuid.data.id, email: email, createdAt: new Date().toISOString(), changedAt: new Date().toISOString(), hash: hash.data.hashed }
+    const register = await CreateUserByUserID(userData)
+    if (!register.state) {
+        responseData.error = register.error
+        return responseData
+    }
+
+    responseData.state = true
+    responseData.data = { uuid: uuid.data.id }
 
     return responseData
 }

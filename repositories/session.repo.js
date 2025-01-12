@@ -39,14 +39,14 @@ export const CreateSessionByToken = async (sessionData) => {
     const responseData = { state: false, data: null, error: null }
     const { uuid, token, ext } = sessionData
 
-    const query = marshall({
-        Item: {
+    const query = {
+        Item: marshall({
             uuid: uuid,
             token: token,
             ext: ext,
-        },
+        }),
         TableName: process.env.SESSION_TABLE
-    })
+    }
 
     const command = new PutItemCommand(query)
 

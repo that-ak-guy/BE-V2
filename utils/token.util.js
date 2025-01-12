@@ -4,14 +4,14 @@ import { ApiError } from './ApiError.js'
 import { ErrorCodes, ErrorMessages } from '../config/codes.js'
 
 export const SignToken = (tokenConfig) => {
-    const responseData = { state: false, error: null, data: null }
+    const responseData = { state: false, data: {}, error: null }
 
     try {
         const privatekey = fs.readFileSync('certs/private.pem')
         const res = jwt.sign(tokenConfig.payload, privatekey, { algorithm: 'RS256', expiresIn: tokenConfig.ext })
 
         responseData.state = true
-        responseData.data = res
+        responseData.data = { token: res }
     }
 
     catch (error) {

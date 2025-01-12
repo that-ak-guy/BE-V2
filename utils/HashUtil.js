@@ -5,13 +5,13 @@ import { ErrorCodes, ErrorMessages } from "../config/codes.js"
 const saltRounds = 10
 
 export const HashPassword = async (password) => {
-    const responseData = { state: false, data: null, error: null }
+    const responseData = { state: false, data: {}, error: null }
 
     try {
-        const hash = await hash(password, saltRounds)
+        const hashed = await hash(password, saltRounds)
 
         responseData.state = true
-        responseData.data = hash
+        responseData.data = { hashed }
     }
 
     catch (error) {

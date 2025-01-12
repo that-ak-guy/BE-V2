@@ -1,6 +1,6 @@
 import { ApiError } from "../utils/ApiError.js"
 import { asyncHandler } from "../utils/asyncHandler.js"
-import { VerifyAccessToken, VerifyRefreshToken } from "../services/session.service.js"
+import { VerifyAccessTokenService, VerifyRefreshTokenService } from "../services/session.service.js"
 import { ErrorCodes, ErrorMessages } from "../config/codes.js"
 
 
@@ -11,7 +11,7 @@ export const SessionVerify = asyncHandler(async (req, _, next) => {
         throw new ApiError(401, ErrorCodes.Notoken, ErrorMessages.Notoken)
     }
 
-    const decoded = await VerifyAccessToken(token)
+    const decoded = await VerifyAccessTokenService(token)
     if (!decoded.state) {
         throw decoded.error
     }
@@ -25,14 +25,14 @@ export const AuthSessionVerifyIn = asyncHandler(async (req, res, next) => {
     const refreshtoken = req.cookies.refreshToken
 
     if (accesstoken) {
-        const accessdecoded = await VerifyAccessToken(accesstoken)
+        const accessdecoded = await VerifyAccessTokenService(accesstoken)
         if (!accessdecoded.state) {
             throw accessdecoded.error
         }
         throw new ApiError(409, ErrorCodes.Userconflict, ErrorMessages.Userconflict)
     }
     else if (refreshtoken) {
-        const refreshdecoded = await VerifyRefreshToken(refreshtoken)
+        const refreshdecoded = await VerifyRefreshTokenService(refreshtoken)
         if (!refreshdecoded.state) {
             throw refreshdecoded.error
         }
@@ -53,12 +53,12 @@ export const AuthSessionVerifyOut = asyncHandler(async (req, _, next) => {
         throw new ApiError(401, ErrorCodes.Notoken, ErrorMessages.Notoken)
     }
 
-    const accessdecoded = await VerifyAccessToken(accesstoken)
+    const accessdecoded = await VerifyAccessTokenService(accesstoken)
     if (!accessdecoded.state) {
         throw accessdecoded.error
     }
 
-    const refreshdecoded = await VerifyRefreshToken(refreshtoken)
+    const refreshdecoded = await VerifyRefreshTokenService(refreshtoken)
     if (!refreshdecoded.state) {
         throw refreshdecoded.error
     }
@@ -71,7 +71,7 @@ export const RefreshSessionVerify = asyncHandler(async (req, _, next) => {
     const refreshtoken = req.cookies.refreshToken
 
     if (accesstoken) {
-        const accessdecoded = await VerifyAccessToken(accesstoken)
+        const accessdecoded = await VerifyAccessTokenService(accesstoken)
         if (!accessdecoded.state) {
             throw accessdecoded.error
         }
@@ -82,7 +82,7 @@ export const RefreshSessionVerify = asyncHandler(async (req, _, next) => {
         throw new ApiError(401, ErrorCodes.Notoken, ErrorMessages.Notoken)
     }
 
-    const refreshdecoded = await VerifyRefreshToken(refreshtoken)
+    const refreshdecoded = await VerifyRefreshTokenService(refreshtoken)
     if (!refreshdecoded.state) {
         throw refreshdecoded.error
     }

@@ -1,5 +1,5 @@
 import { SuccessCodes, SuccessMessages } from "../config/codes.js"
-import { CreateAccessToken, VerifyAccessToken } from "../services/session.service.js"
+import { CreateAccessTokenService } from "../services/session.service.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import { asyncHandler } from "../utils/asyncHandler.js"
 
@@ -8,7 +8,7 @@ export const RefreshController = asyncHandler(async (req, res) => {
 
     const userData = { uuid: uuid, role: role }
 
-    const tokenRes = await CreateAccessToken(userData)
+    const tokenRes = await CreateAccessTokenService(userData)
     if (!tokenRes.state) {
         throw tokenRes.error
     }

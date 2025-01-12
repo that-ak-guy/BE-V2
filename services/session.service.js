@@ -1,12 +1,11 @@
-import { FindSessionByToken } from "../repositories/session.repo.js"
+import { CreateSessionByToken, FindSessionByToken } from "../repositories/session.repo.js"
 import { SignToken, VerifyToken } from "../utils/token.util.js"
 
 
 
-export const CreateAccessToken = async (userData) => {
+export const CreateAccessTokenService = async (userData) => {
     const responseData = { state: false, data: null, error: null }
     const tokenConfig = { payload: userData, ext: process.env.ACCESS_TOKEN_EXT }
-
     const newtoken = SignToken(tokenConfig)
     if (!newtoken.state) {
         responseData.error = newtoken.error
@@ -19,7 +18,7 @@ export const CreateAccessToken = async (userData) => {
     return responseData
 }
 
-export const VerifyAccessToken = async (token) => {
+export const VerifyAccessTokenService = async (token) => {
     const responseData = { state: false, data: null, error: null }
 
     const decoded = VerifyToken(token)
@@ -32,8 +31,8 @@ export const VerifyAccessToken = async (token) => {
     return responseData
 }
 
-export const CreateRefreshToken = async (userData) => {
-    const responseData = { state: false, data: null, error: null }
+export const CreateRefreshTokenService = async (userData) => {
+    const responseData = { state: false, data: {}, error: null }
     const tokenConfig = { payload: userData, ext: process.env.REFRESH_TOKEN_EXT }
 
     const newtoken = SignToken(tokenConfig)
@@ -42,16 +41,20 @@ export const CreateRefreshToken = async (userData) => {
         return responseData
     }
 
-    
+    const sessionData = { uuid: userData.uuid, token: newtoken.data.token, ext: (Date.now() + (15 * 24 * 60 * 60 * 1000)) }
+    const dbData = await CreateSessionByToken(sessionData)
+    if (!dbData.state) {
+        responseData.error = dbData.error
+        return responseData
+    }
 
     responseData.state = true
     responseData.data = newtoken.data
 
-
     return responseData
 }
 
-export const VerifyRefreshToken = async (token) => {
+export const VerifyRefreshTokenService = async (token) => {
     const responseData = { state: false, data: null, error: null }
 
     const decoded = VerifyToken(token)
@@ -76,4 +79,5 @@ export const DeleteSession = async (tokens) => {
 
     responseData
 }
+
 

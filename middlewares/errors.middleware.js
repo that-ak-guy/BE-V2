@@ -6,10 +6,10 @@ export const ErrorHandler = (err, req, res, next) => {
             statusCode: err.statusCode,
             code: err.code,
             message: err.message,
-            errors: err.errors,
+            errors: err.errors
         })
     }
 
-    return res.status(500).json({ statusCode: 500, code: 'INTERNAL_ERROR', message: 'Unknown Server Error', error: [err.stack] })
+    return res.status(500).json({ statusCode: 500, code: 'INTERNAL_ERROR', message: 'Unknown Server Error', errors: [], stack: err.stack })
 
 }
