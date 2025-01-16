@@ -16,13 +16,24 @@ export const ErrorLogID = asyncHandler(async (req, __, next) => {
 
 export const ErrorLogger = async (err, req, res, next) => {
 
-    const reqData = { path: req.path, body: req.body, method: req.method }
-    const resData = {}
-    const errData = { errors: [err], stack: err.stack }
+    // const reqData = { path: req.path, body: req.body, method: req.method }
+    // const resData = {}
+    // const errData = { errors: [err], stack: err.stack }
 
-    if (err instanceof ApiError) {
-        const data = new ApiLog(req.logid, 'dev', err.statusCode, err.code, err.message, reqData, resData, errData, req.uuid)
-        console.log(data)
+    // if (err instanceof ApiError) {
+    //     const data = new ApiLog(req.logid, 'dev', err.statusCode, err.code, err.message, reqData, resData, errData, req.uuid)
+    //     console.log(data)
+    // }
+    // next(err)
+
+    async function test(params) {
+        console.log('LOGGER WORKING STARTED')
+        setTimeout(() => {
+            console.log('LOGGER EXITS')
+        }, 5000);
     }
+
+    asyncHandler(test())
+
     next(err)
 }

@@ -7,7 +7,8 @@ export const SignToken = (tokenConfig) => {
     const responseData = { state: false, data: {}, error: null }
 
     try {
-        const privatekey = fs.readFileSync('certs/private.pem')
+        // const privatekey = fs.readFileSync('certs/private.pem')
+        const privatekey = process.env.PRIVATE_KEY
         const res = jwt.sign(tokenConfig.payload, privatekey, { algorithm: 'RS256', expiresIn: tokenConfig.ext })
 
         responseData.state = true
@@ -26,7 +27,8 @@ export const VerifyToken = (token) => {
     const responseData = { state: false, error: null, data: null }
 
     try {
-        const publickey = fs.readFileSync('certs/public.pem')
+        // const publickey = fs.readFileSync('certs/public.pem')
+        const publickey = process.env.PUBLIC_KEY
         const res = jwt.verify(token, publickey, { algorithms: ['RS256'] })
 
         responseData.state = true

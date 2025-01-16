@@ -63,6 +63,7 @@ export const AuthSessionVerifyOut = asyncHandler(async (req, _, next) => {
         throw refreshdecoded.error
     }
 
+    req.tokenData = { accesstoken: accesstoken, refreshtoken: refreshtoken }
     next()
 })
 

@@ -74,10 +74,12 @@ export const VerifyRefreshTokenService = async (token) => {
     return responseData
 }
 
-export const DeleteSession = async (tokens) => {
-    const responseData = { status: null }
+export const EndSessionService = async (tokenData) => {
+    const responseData = { state: false, data: null, error: null }
 
-    responseData
+    
+
+    return responseData
 }
 
 

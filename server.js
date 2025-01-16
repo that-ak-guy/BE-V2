@@ -8,11 +8,14 @@ import cors from 'cors'
 import VaultRouter from './routes/vault.router.js'
 import RefreshRouter from './routes/refresh.router.js'
 import { ErrorHandler } from './middlewares/errors.middleware.js'
-import { unless } from 'express-unless'
-import { ErrorLogger, ErrorLogID } from './middlewares/logger.middleware.js'
+import { ErrorLogger } from './middlewares/logger.middleware.js'
+
 
 const app = express()
+
+
 const port = process.env.PORT || 9000
+
 
 app.use(cors(
     {
@@ -21,28 +24,19 @@ app.use(cors(
         credentials: true
     }
 ))
-
-SessionVerify.unless = unless
-
 app.use(express.json())
 app.use(cookieParser())
 
-app.use(ErrorLogID)
 
 app.get('/', (req, res) => {
     res.send("This is the home")
 })
-
 app.use('/api/auth', AuthRouter)
 app.use('/api/feed', FeedRouter)
 app.use('/api/vault', SessionVerify, VaultRouter)
-
-// READY FOR PRODUCTION
-
 app.use('/refresh', RefreshRouter)
 
-
-app.use(ErrorLogger)
+// app.use(ErrorLogger)
 
 app.use(ErrorHandler)
 

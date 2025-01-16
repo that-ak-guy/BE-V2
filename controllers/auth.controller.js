@@ -1,6 +1,6 @@
-import { ErrorCodes, SuccessCodes, SuccessMessages } from "../config/codes.js"
+import { SuccessCodes, SuccessMessages } from "../config/codes.js"
 import { LoginService, RegisterService } from "../services/auth.service.js"
-import { CreateRefreshTokenService } from "../services/session.service.js"
+import { CreateRefreshTokenService, EndSessionService } from "../services/session.service.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import { asyncHandler } from "../utils/asyncHandler.js"
 
@@ -49,6 +49,14 @@ export const RegisterController = asyncHandler(async (req, res) => {
 
 })
 
-export const LogoutContoller = (req, res) => {
+export const LogoutContoller = asyncHandler(async (req, res) => {
+    const tokenData = req.tokenData
 
-}
+    const logout = await EndSessionService(tokenData)
+    if (!logout.state) {
+        throw logout.error
+    }
+
+    
+
+})

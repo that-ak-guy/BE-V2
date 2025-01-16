@@ -1,11 +1,13 @@
 import { ErrorCodes, ErrorMessages } from "../config/codes.js"
-import { CreateUserByUserID, FindHashByUuid, FindUserByEmail, FindUserByUserID } from "../repositories/auth.repo.js"
+import { CreateUserByUserID, FindHashByUuid, FindUserByEmail } from "../repositories/auth.repo.js"
 import { ApiError } from "../utils/ApiError.js"
 import { HashPassword, VerifyPassword } from "../utils/HashUtil.js"
+import { InternalResponse } from "../utils/InternalDataUtil.js"
 import { GenerateUUID } from "../utils/uuidUtil.js"
 
+
 export const LoginService = async (loginData) => {
-    const responseData = { state: false, data: {}, error: null }
+    const responseData = new InternalResponse()
 
     const { id, userid, password } = loginData
 
@@ -38,7 +40,7 @@ export const LoginService = async (loginData) => {
 }
 
 export const RegisterService = async (registerData) => {
-    const responseData = { state: false, data: null, error: null }
+    const responseData = new InternalResponse()
 
     const { email, password } = registerData
 
@@ -55,7 +57,6 @@ export const RegisterService = async (registerData) => {
 
     else {
         responseData.error = new ApiError(400, ErrorCodes.Emailexists, ErrorMessages.Emailexists)
-
         return responseData
     }
 

@@ -3,40 +3,47 @@ import DBClient from "../config/initDB.js"
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import { ApiError } from "../utils/ApiError.js";
 import { ErrorCodes, ErrorMessages } from "../config/codes.js";
+import { InternalResponse } from "../utils/InternalDataUtil.js";
 
-const Client = DBClient;
 
 export const FindSessionByToken = async (token) => {
-    const responseData = { state: false, data: null, error: null }
+    const responseData = new InternalResponse()
+
+    if (!token) {
+        console.log('No token found.')
+        responseData.error = new ApiError(500, ErrorCodes.Internalerror, ErrorMessages.Internalerror)
+        return responseData
+    }
 
     const query = {
-        "Key": {
-            "token": {
-                "S": token
-            },
+        Key: {
+            token: marshall(token),
         },
-        "TableName": process.env.SESSION_TABLE
+        TableName: process.env.SESSION_TABLE
     }
 
     const command = new GetItemCommand(query)
     try {
-        const res = await Client.send(command)
-        if (!res.Item) {
+        const dbData = await DBClient.send(command)
+        if (!dbData.Item) {
             responseData.error = new ApiError(401, ErrorCodes.Invalidtoken, ErrorMessages.Invalidtoken)
+            return responseData
         }
-        else {
-            responseData.state = true
-            responseData.data = unmarshall(res.Item)
-        }
+
+        responseData.state = true
+        responseData.data = unmarshall(dbData.Item)
+
     }
     catch (error) {
+        console.log('Error Finding Session :' + error)
         responseData.error = new ApiError(500, ErrorCodes.Internalerror, ErrorMessages.Internalerror)
     }
     return responseData
 }
 
 export const CreateSessionByToken = async (sessionData) => {
-    const responseData = { state: false, data: null, error: null }
+    const responseData = new InternalResponse()
+
     const { uuid, token, ext } = sessionData
 
     const query = {
@@ -51,10 +58,11 @@ export const CreateSessionByToken = async (sessionData) => {
     const command = new PutItemCommand(query)
 
     try {
-        const result = await Client.send(command)
+        const dbData = await DBClient.send(command)
         responseData.state = true
     }
     catch (error) {
+        console.log('Error creating session : ' + error)
         responseData.error = new ApiError(500, ErrorCodes.Internalerror, ErrorMessages.Internalerror)
     }
 
@@ -62,24 +70,32 @@ export const CreateSessionByToken = async (sessionData) => {
 }
 
 export const ClearSessionByToken = async (token) => {
-    const responseData = { status: null }
+    const responseData = new InternalResponse()
+
+    if (!token) {
+        console.log('No refresh token')
+        responseData.error = new ApiError(500, ErrorCodes.Internalerror, ErrorMessages.Internalerror)
+        return responseData
+    }
 
     const query = {
-        "Key": {
-            "token": {
-                "S": token
-            }
+        Key: {
+            "token": marshall(token)
         },
-        "TableName": process.env.SESSION_TABLE
+        TableName: process.env.SESSION_TABLE
     }
 
     const command = new DeleteItemCommand(query)
 
     try {
-        const res = await Client.send(command)
-        console.log(res)
+        const dbData = await DBClient.send(command)
+
+        responseData.state = true
     }
     catch (error) {
         console.error('Error Clearing Session : ', error)
+        responseData.error = new ApiError(500, ErrorCodes.Internalerror, ErrorMessages.Internalerror)
     }
+
+    return responseData
 }
