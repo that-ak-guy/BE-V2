@@ -34,6 +34,5 @@ export const ErrorLogger = async (err, req, res, next) => {
     }
 
     asyncHandler(test())
-
     next(err)
 }
