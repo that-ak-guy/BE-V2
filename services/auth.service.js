@@ -9,32 +9,30 @@ import { GenerateUUID } from "../utils/uuidUtil.js"
 export const LoginService = async (loginData) => {
     const responseData = new InternalResponse()
 
-    const { id, userid, password } = loginData
+    const { email, password } = loginData
 
-    if (id === 'email') {
-        const userData = await FindUserByEmail(userid)
-        if (!userData.state) {
-            responseData.error = userData.error
-        }
-        else {
-            const uuid = userData.data.uuid
-            const authData = await FindHashByUuid(uuid)
-            if (!authData.state) {
-                responseData.error = authData.error
-            }
-            else {
-                const hash = authData.data.hash
-                const userValid = await VerifyPassword(password, hash)
-                if (!userValid.state) {
-                    responseData.error = userValid.error
-                }
-                else {
-                    responseData.state = true
-                    responseData.data = userData
-                }
-            }
-        }
+    const emailData = await FindUserByEmail(email)
+    if (!emailData.state) {
+        responseData.error = emailData.error
+        return responseData
     }
+
+    const uuid = emailData.data.uuid
+    const authData = await FindHashByUuid(uuid)
+    if (!authData.state) {
+        responseData.error = authData.error
+        return responseData
+    }
+
+    const hash = authData.data.hash
+    const userValid = await VerifyPassword(password, hash)
+    if (!userValid.state) {
+        responseData.error = userValid.error
+        return responseData
+    }
+
+    responseData.state = true
+    responseData.data = { uuid }
 
     return responseData
 }
@@ -56,7 +54,7 @@ export const RegisterService = async (registerData) => {
     }
 
     else {
-        responseData.error = new ApiError(400, ErrorCodes.Emailexists, ErrorMessages.Emailexists)
+        responseData.error = new ApiError(400, ErrorCodes.Emailexists, ErrorMessages.Emailexists, 'WARNING')
         return responseData
     }
 

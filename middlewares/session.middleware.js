@@ -38,7 +38,6 @@ export const AuthSessionVerifyIn = asyncHandler(async (req, res, next) => {
         }
         throw new ApiError(409, ErrorCodes.Userconflict, ErrorMessages.Userconflict)
     }
-
     next()
 })
 

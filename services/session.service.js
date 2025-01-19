@@ -1,4 +1,5 @@
-import { CreateSessionByToken, FindSessionByToken } from "../repositories/session.repo.js"
+import { CreateSessionByToken, DeleteRefreshToken, FindSessionByToken } from "../repositories/session.repo.js"
+import { InternalResponse } from "../utils/InternalDataUtil.js"
 import { SignToken, VerifyToken } from "../utils/token.util.js"
 
 
@@ -75,9 +76,15 @@ export const VerifyRefreshTokenService = async (token) => {
 }
 
 export const EndSessionService = async (tokenData) => {
-    const responseData = { state: false, data: null, error: null }
+    const responseData = new InternalResponse()
 
-    
+    const dbData = await DeleteRefreshToken(tokenData)
+    if (!dbData.state) {
+        responseData.error = dbData.error
+        return responseData
+    }
+
+    responseData.state = true
 
     return responseData
 }

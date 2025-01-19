@@ -2,46 +2,50 @@ import isEmail from "validator/lib/isEmail.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import isStrongPassword from "validator/lib/isStrongPassword.js";
+import { ErrorCodes, ErrorMessages } from "../config/codes.js";
+import { RegisterSchema } from "../models/register.model.js";
+import { LoginSchema } from "../models/login.model.js";
 
 
 export const LoginValidator = asyncHandler(async (req, _, next) => {
-    // const { userid, password } = req.body
-    // if (isEmail(userid)) {
-    //     req.body.id = 'email'
-    // }
-    // else if (isMobilePhone(userid)) {
-    //     req.body.id = 'phone'
-    // }
-    // else {
-    //     throw new ApiError(400, 'INVALID_USERID', 'Invalid Userid')
-    // }
-    // if (!password) {
-    //     throw new ApiError(400, 'MISSING_PASSWORD', 'Password is required')
-    // }
 
+    const reqData = req.body
 
+    if (!reqData || Object.keys(reqData).length === 0) {
+        throw new ApiError(400, ErrorCodes.Datanotfound, ErrorMessages.Datanotfound, 'WARNING')
+    }
+
+    const { value, error } = LoginSchema.validate(reqData, {
+        stripUnknown: true,
+        abortEarly: false
+    })
+
+    if (error) {
+        throw new ApiError(400, ErrorCodes.InvalidData, ErrorCodes.InvalidData, 'WARNING', error.details)
+    }
+
+    req.data = value
+    next()
 })
 
-export const RegisterValidator = asyncHandler(async (req, _, next) => {
+export const RegisterValidator = asyncHandler(async (req, res, next) => {
 
-    const { username, email, phone, city, country, password } = req.body
+    const reqData = req.body
 
-    if (!username || !email || !phone || !city || !country || !password) {
-        throw new ApiError(400, 'MISSING_FIELDS', 'All fields are required')
+    if (!reqData || Object.keys(reqData).length === 0) {
+        throw new ApiError(400, ErrorCodes.Datanotfound, ErrorMessages.Datanotfound, 'WARNING')
     }
-    else {
-        if (!isEmail(email)) {
-            throw new ApiError(400, 'INVALID_EMAIL', 'Invalid Email')
-        }
-        else if (!isStrongPassword(password)) {
-            throw new ApiError(400, 'INVALID_PASSWORD', 'Invalid Password')
-        }
-        else {
-            next()
-        }
-    }
-})
 
-export const RefreshValidator = asyncHandler(async (req, _, next) => {
-    
+    const { value, error } = RegisterSchema.validate(reqData, {
+        abortEarly: false,
+        stripUnknown: true
+    })
+
+    if (error) {
+        throw new ApiError(400, ErrorCodes.InvalidData, ErrorMessages.InvalidData, 'WARNING', error.details)
+    }
+
+    req.data = value
+
+    next()
 })

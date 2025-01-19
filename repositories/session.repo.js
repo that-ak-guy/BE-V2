@@ -26,7 +26,7 @@ export const FindSessionByToken = async (token) => {
     try {
         const dbData = await DBClient.send(command)
         if (!dbData.Item) {
-            responseData.error = new ApiError(401, ErrorCodes.Invalidtoken, ErrorMessages.Invalidtoken)
+            responseData.error = new ApiError(401, ErrorCodes.Invalidtoken, ErrorMessages.Invalidtoken, 'WARNING')
             return responseData
         }
 
@@ -69,32 +69,30 @@ export const CreateSessionByToken = async (sessionData) => {
     return responseData
 }
 
-export const ClearSessionByToken = async (token) => {
+export const DeleteRefreshToken = async (token) => {
     const responseData = new InternalResponse()
 
     if (!token) {
-        console.log('No refresh token')
         responseData.error = new ApiError(500, ErrorCodes.Internalerror, ErrorMessages.Internalerror)
         return responseData
     }
 
     const query = {
+        TableName: process.env.SESSION_TABLE,
         Key: {
             "token": marshall(token)
-        },
-        TableName: process.env.SESSION_TABLE
+        }
     }
 
     const command = new DeleteItemCommand(query)
 
     try {
         const dbData = await DBClient.send(command)
-
+        console.log(dbData)
         responseData.state = true
     }
     catch (error) {
-        console.error('Error Clearing Session : ', error)
-        responseData.error = new ApiError(500, ErrorCodes.Internalerror, ErrorMessages.Internalerror)
+        responseData.error = new ApiError(500, ErrorCodes.Internalerror, ErrorMessages.Internalerror, undefined, undefined, error.stack)
     }
 
     return responseData

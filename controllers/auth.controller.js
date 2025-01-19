@@ -1,4 +1,5 @@
-import { SuccessCodes, SuccessMessages } from "../config/codes.js"
+import { ErrorMessages, SuccessCodes, SuccessMessages } from "../config/codes.js"
+import { DeleteRefreshToken } from "../repositories/session.repo.js"
 import { LoginService, RegisterService } from "../services/auth.service.js"
 import { CreateRefreshTokenService, EndSessionService } from "../services/session.service.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
@@ -8,22 +9,22 @@ import { asyncHandler } from "../utils/asyncHandler.js"
 export const LoginController = asyncHandler(async (req, res) => {
     const responseData = { data: null }
 
-    const loginData = req.body
+    const reqData = req.data
 
-    const userData = await LoginService(loginData)
-    if (!userData.state) {
-        throw userData.error
+    const login = await LoginService(reqData)
+    if (!login.state) {
+        throw login.error
     }
 
-    const userpayload = { uuid: userData.data.uuid }
+    const userpayload = { uuid: login.data.uuid }
     const token = await CreateRefreshTokenService(userpayload)
     if (!token.state) {
         throw token.error
     }
 
-    responseData.data = userData
+    responseData.data = { uuid: login.data.uuid }
 
-    res.cookie('refreshToken', token.data)
+    res.cookie('refreshToken', token.data.token)
     res.status(200).json(new ApiResponse(200, SuccessCodes.Loginsuccess, SuccessMessages.Loginsuccess, responseData))
 })
 
@@ -57,6 +58,6 @@ export const LogoutContoller = asyncHandler(async (req, res) => {
         throw logout.error
     }
 
-    
+    res.status(200).json(new ApiResponse(200, SuccessCodes.Logoutsuccess, SuccessMessages.Logoutsuccess))
 
 })

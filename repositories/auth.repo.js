@@ -31,7 +31,7 @@ export const FindUserByUuid = async (uuid) => {
     try {
         const dbData = await DBClient.send(command)
         if (dbData.Items.length === 0) {
-            responseData.error = new ApiError(404, ErrorCodes.Usernotfound, ErrorMessages.Usernotfound)
+            responseData.error = new ApiError(404, ErrorCodes.Usernotfound, ErrorMessages.Usernotfound, 'WARNING')
             return responseData
         }
 
@@ -73,7 +73,7 @@ export const FindUserByEmail = async (email) => {
     try {
         const dbData = await DBClient.send(command)
         if (dbData.Items.length === 0) {
-            responseData.error = new ApiError(404, ErrorCodes.Usernotfound, ErrorCodes.Usernotfound)
+            responseData.error = new ApiError(404, ErrorCodes.Usernotfound, ErrorCodes.Usernotfound, 'WARNING')
             return responseData
         }
 

@@ -1,18 +1,16 @@
 class ApiLog {
-    constructor(id, level, statusCode, code, message, reqdata, resdata, errordata = {}, systemdata = {}, userdata = {}) {
-        this.id = id
+    constructor(logid, level, statusCode, code, message, reqData, errorData, systemData = null, userData = null) {
+        this.logid = logid
         this.level = level
         this.statusCode = statusCode
         this.code = code
         this.message = message
         this.stage = process.env.STAGE || 'dev'
         this.timestamp = new Date().toLocaleString()
-        this.reqdata = reqdata
-        this.resdata = resdata
-        this.errordata = errordata
-        this.systemdata = systemdata
-        this.userdata = userdata
-        this.success = statusCode < 300
+        this.reqData = reqData
+        this.errorData = errorData
+        this.systemData = systemData
+        this.userData = userData
     }
 }
 

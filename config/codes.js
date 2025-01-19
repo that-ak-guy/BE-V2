@@ -7,6 +7,8 @@ export const ErrorCodes = {
     Usernotfound: 'USER_NOT_FOUND',
     Emailexists: 'UNIQUE_EMAIL',
     InvalidPass: 'INVALID_PASSWORD',
+    Datanotfound: 'NO_DATA',
+    InvalidData: 'INVALID_DATA'
 }
 
 export const ErrorMessages = {
@@ -18,17 +20,20 @@ export const ErrorMessages = {
     Usernotfound: 'User not found.',
     Emailexists: 'Email already exists.',
     InvalidPass: 'Wrong password.',
-
+    Datanotfound: 'No data was found in the request.',
+    InvalidData: 'Invalid data was received.'
 }
 
 export const SuccessCodes = {
     TokenSigned: 'TOKEN_SIGNED',
     Loginsuccess: 'LOGIN_SUCCESS',
-    Registersuccess: 'REGISTER_SUCCESS'
+    Registersuccess: 'REGISTER_SUCCESS',
+    Logoutsuccess: 'LOGOUT_SUCCESS'
 }
 
 export const SuccessMessages = {
     TokenSigned: 'Token Signed successfully.',
     Loginsuccess: 'User login successful.',
-    Registersuccess: 'User Registered successfully.'
+    Registersuccess: 'User Registered successfully.',
+    Logoutsuccess: 'User successfully logged out.'
 }

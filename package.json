@@ -4,7 +4,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "dev" : "nodemon .\\server.js",
+    "dev": "nodemon .\\server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -14,6 +14,7 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.699.0",
     "@aws-sdk/util-dynamodb": "^3.726.0",
+    "axios": "^1.7.9",
     "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -21,6 +22,7 @@
     "dotenv": "^16.4.6",
     "express": "^4.21.1",
     "express-unless": "^2.1.3",
+    "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "uuid": "^11.0.5",
     "validator": "^13.12.0",

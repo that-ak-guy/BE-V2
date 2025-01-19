@@ -8,7 +8,7 @@ import cors from 'cors'
 import VaultRouter from './routes/vault.router.js'
 import RefreshRouter from './routes/refresh.router.js'
 import { ErrorHandler } from './middlewares/errors.middleware.js'
-import { ErrorLogger } from './middlewares/logger.middleware.js'
+import { ErrorLogger, ErrorLogID } from './middlewares/logger.middleware.js'
 
 
 const app = express()
@@ -36,8 +36,8 @@ app.use('/api/feed', FeedRouter)
 app.use('/api/vault', SessionVerify, VaultRouter)
 app.use('/refresh', RefreshRouter)
 
-// app.use(ErrorLogger)
-
+app.use(ErrorLogID)
+app.use(ErrorLogger)
 app.use(ErrorHandler)
 
 
